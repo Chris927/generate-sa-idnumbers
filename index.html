@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Generate SA ID Numbers</title>
+  
+  <script src="https://code.jquery.com/jquery.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  
+  <script>
+  
+    // calculates the Lohn digit, see https://en.wikipedia.org/wiki/Luhn_algorithm
+    function calculateCheckDigit(digitsAsString) {
+      //const digits = ('' + dob + gender + sequence + citizenship + eight).split('').map(d => Number(d))
+      const digits = digitsAsString.replace(/\D/g, '').split('').map(d => Number(d))
+      const checkSum = digits.reverse().map((d, ix) => {
+        if (ix % 2 === 0) {
+          d *= 2
+          if (d > 9) {
+            d -= 9
+          }
+        }
+        return d
+      }).reduce((memo, d) => memo += d, 0)
+      return checkSum * 9 % 10
+    }
+    
+    // show a valid ID number generated using the values in the form
+    function showIdNumber() {
+    
+      const form = document.forms.f1
+      
+      const values = [
+        form.year, form.month, form.day,
+        form.gender,
+        { value: '896' /* sequence */ },
+        { value: '0' /* citizenship */ },
+        { value: '8' /* a */ },
+      ]
+      
+      withoutCheckDigit = values.map(e => e.value).join('')
+      const idNumber = withoutCheckDigit + calculateCheckDigit(withoutCheckDigit)
+      
+      document.getElementById('result').innerHTML = `<p>${ idNumber }</p>`
+      
+    }
+  </script>
+</head>
+
+<body>
+
+  <div class="container">
+  
+    <h3>Generate (Fake) South-African ID Numbers</h1>
+    
+    <div class="row">
+      <div class="col-xs-12">
+      
+      <form id="f1" name="f1" onsubmit="showIdNumber(); return false">
+      
+        <div class="input-group col-xs-12">
+          <label for="year">Year of Birth</label>
+          <select class="form-control" id="year" name="year"></select>
+        </div>
+        <div class="input-group col-xs-12">
+          <label for="month">Month of Birth</label>
+          <select class="form-control" id="month" name="month"></select>
+        </div>
+        <div class="input-group col-xs-12">
+          <label for="day">Day of Birth</label>
+          <select class="form-control" id="day" name="day"></select>
+        </div>
+        <div class="input-group col-xs-12">
+          <input type="radio" name="gender" id="female" value="4" />
+          <label for="female">Female</label> 
+          <br/>
+          <input type="radio" name="gender" id="male" value="5" />
+          <label for="male">Male</label> 
+        </div>
+
+        <input class="btn btn-primary" type="submit" />
+        
+      </form>
+      
+      <h3>Result</h3>
+      
+      <div id="result"></div>
+      
+    </div>
+  </div>
+  
+  <script>
+  
+    // add 'option' elements to the 'select' elements (for year, month, day)
+    function addOptions(id, from, to, toLabel) {
+      const selectElement = document.getElementById(id)
+      const values = []
+      for (let i = 0; i <= to - from; i++) values[i] = i + from
+      const options = values
+      .map(v => ((v < 10 ? '0' : '') + v))
+      .map(v => `<option value=${ v }>${ toLabel ? toLabel(v) : v }</option>`)
+      selectElement.innerHTML = options.join()
+    }
+    
+    const year = new Date().getYear() // need the current year to display age... 2016 yields 116 (thanks to funny JS)
+    
+    addOptions('year', 20, 99, v => `${v} (~${year - Number(v)} years old)`)
+    addOptions('month', 1, 12)
+    addOptions('day', 1, 31)
+    
+  </script>
+  
+</body>
+</html>
