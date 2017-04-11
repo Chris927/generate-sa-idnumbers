@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>Generate SA ID Numbers</title>
-  
+
   <script src="https://code.jquery.com/jquery.min.js"></script>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-  
+
   <script>
-  
+
     // calculates the Lohn digit, see https://en.wikipedia.org/wiki/Luhn_algorithm
     function calculateCheckDigit(digitsAsString) {
       //const digits = ('' + dob + gender + sequence + citizenship + eight).split('').map(d => Number(d))
@@ -26,40 +26,46 @@
       }).reduce((memo, d) => memo += d, 0)
       return checkSum * 9 % 10
     }
-    
+
     // show a valid ID number generated using the values in the form
     function showIdNumber() {
-    
+
       const form = document.forms.f1
-      
+
       const values = [
         form.year, form.month, form.day,
         form.gender,
-        { value: '896' /* sequence */ },
-        { value: '0' /* citizenship */ },
+        { value: form.sequence.value || '896' /* sequence */ },
+        { value: form.cship.value || '0' /* citizenship */ },
         { value: '8' /* a */ },
       ]
-      
+
       withoutCheckDigit = values.map(e => e.value).join('')
       const idNumber = withoutCheckDigit + calculateCheckDigit(withoutCheckDigit)
-      
+
       document.getElementById('result').innerHTML = `<p>${ idNumber }</p>`
-      
+
     }
+
+    function showExpertOptions() {
+      $('#showExpertOptions').toggle()
+      $('#expertOptions').toggle()
+    }
+
   </script>
 </head>
 
 <body>
 
   <div class="container">
-  
+
     <h3>Generate (Fake) South-African ID Numbers</h1>
-    
+
     <div class="row">
       <div class="col-xs-12">
-      
+
       <form id="f1" name="f1" onsubmit="showIdNumber(); return false">
-      
+
         <div class="input-group col-xs-12">
           <label for="year">Year of Birth</label>
           <select class="form-control" id="year" name="year"></select>
@@ -73,53 +79,82 @@
           <select class="form-control" id="day" name="day"></select>
         </div>
         <div class="input-group col-xs-12">
-          <input type="radio" name="gender" id="female" value="4" />
-          <label for="female">Female</label> 
+          <input type="radio" name="gender" id="female" value="4" checked="checked" />
+          <label for="female">Female</label>
           <br/>
           <input type="radio" name="gender" id="male" value="5" />
-          <label for="male">Male</label> 
+          <label for="male">Male</label>
+        </div>
+
+        <div id="showExpertOptions">
+          <a href="#" onclick="showExpertOptions()">Show expert options</a>
+        </div>
+        <div style="display: none;" id="expertOptions">
+          <div class="input-group col-xs-12">
+            <label for="sequence">Sequence</label>
+            <select class="form-control" id="sequence" name="sequence"></select>
+          </div>
+          <div class="input-group col-xs-12">
+            <input type="radio" name="cship" id="citizen" value="0" checked="checked" />
+            <label for="citizen">Citizen</label>
+            <br/>
+            <input type="radio" name="cship" id="resident" value="1" />
+            <label for="resident">Resident</label>
+          </div>
         </div>
 
         <input class="btn btn-primary" type="submit" />
-        
+
       </form>
-      
+
       <h3>Result</h3>
-      
+
       <div id="result">Hint: submit the form to get an ID number.</div>
-      
+
         <h3>More Information</h3>
-        
+
         <p>See <a href="https://en.wikipedia.org/wiki/National_identification_number#South_Africa">Wikipedia</a> or
           <a href="http://knowles.co.za/generating-south-african-id-numbers/">this article</a>.
         </p>
         <p>
           Read <a href="https://github.com/Chris927/generate-sa-idnumbers">the code</a>.
         </p>
-        
+
     </div>
   </div>
-  
+
   <script>
-  
+
     // add 'option' elements to the 'select' elements (for year, month, day)
-    function addOptions(id, from, to, toLabel) {
+    function addOptions(id, from, to, toLabel, toValue, defaultValue) {
       const selectElement = document.getElementById(id)
       const values = []
       for (let i = 0; i <= to - from; i++) values[i] = i + from
       const options = values
       .map(v => ((v < 10 ? '0' : '') + v))
-      .map(v => `<option value=${ v }>${ toLabel ? toLabel(v) : v }</option>`)
+      .map(v => {
+        const value = toValue ? toValue(v) : v
+        const isDefault = defaultValue && defaultValue === value
+        const label = toLabel ? toLabel(v) : v
+        return `<option value=${ value } ${ isDefault ? 'selected="selected"' : '' }>${ label }</option>`
+      })
       selectElement.innerHTML = options.join()
     }
-    
+
     const year = new Date().getYear() // need the current year to display age... 2016 yields 116 (thanks to funny JS)
-    
+
+    const pad = function(n) {
+      const str = "" + n
+      const pad = "000"
+      return pad.substring(0, pad.length - str.length) + str
+    }
+
     addOptions('year', 20, 99, v => `${v} (~${year - Number(v)} years old)`)
     addOptions('month', 1, 12)
     addOptions('day', 1, 31)
-    
+    addOptions('sequence', 0, 999, v => pad(v), pad, '800')
+
   </script>
-  
+
 </body>
 </html>
