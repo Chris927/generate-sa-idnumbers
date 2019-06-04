@@ -141,7 +141,7 @@
       selectElement.innerHTML = options.join()
     }
 
-    const year = new Date().getYear() // need the current year to display age... 2016 yields 116 (thanks to funny JS)
+    const fullYear = new Date().getFullYear()
 
     const pad = function(n) {
       const str = "" + n
@@ -149,7 +149,13 @@
       return pad.substring(0, pad.length - str.length) + str
     }
 
-    addOptions('year', 20, 99, v => `${v} (~${year - Number(v)} years old)`)
+    function getYearString(y) {
+        const year = Number(y)
+        const century = (year < fullYear - 2000) ? 2000 : 1900
+        return `${century + year} (~${fullYear - century - year} years old)`
+    }
+
+    addOptions('year', 0, 99, y => getYearString(y))
     addOptions('month', 1, 12)
     addOptions('day', 1, 31)
     addOptions('sequence', 0, 999, v => pad(v), pad, '800')
