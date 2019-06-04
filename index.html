@@ -43,7 +43,7 @@
       withoutCheckDigit = values.map(e => e.value).join('')
       const idNumber = withoutCheckDigit + calculateCheckDigit(withoutCheckDigit)
 
-      document.getElementById('result').innerHTML = `<p>${ idNumber }</p>`
+      document.getElementById('result').innerHTML = `<h2>${ idNumber }</h2>`
 
     }
 
@@ -51,6 +51,11 @@
       $('#showExpertOptions').toggle()
       $('#expertOptions').toggle()
     }
+
+    $(function() {
+        $(document.forms.f1).on('change', () => showIdNumber())
+        showIdNumber()
+    })
 
   </script>
 </head>
@@ -62,23 +67,23 @@
     <h3>Generate (Fake) South-African ID Numbers</h1>
 
     <div class="row">
-      <div class="col-xs-12">
+      <div class="col-xs-12 col-md-6 col-sm-8 col-lg-6">
 
-      <form id="f1" name="f1" onsubmit="showIdNumber(); return false">
+      <form id="f1" name="f1">
 
-        <div class="input-group col-xs-12">
+        <div class="form-group input-group col-xs-12">
           <label for="year">Year of Birth</label>
           <select class="form-control" id="year" name="year"></select>
         </div>
-        <div class="input-group col-xs-12">
+        <div class="form-group input-group col-xs-12">
           <label for="month">Month of Birth</label>
           <select class="form-control" id="month" name="month"></select>
         </div>
-        <div class="input-group col-xs-12">
+        <div class="form-group input-group col-xs-12">
           <label for="day">Day of Birth</label>
           <select class="form-control" id="day" name="day"></select>
         </div>
-        <div class="input-group col-xs-12">
+        <div class="form-group input-group col-xs-12">
           <input type="radio" name="gender" id="female" value="4" checked="checked" />
           <label for="female">Female</label>
           <br/>
@@ -87,14 +92,14 @@
         </div>
 
         <div id="showExpertOptions">
-          <a href="#" onclick="showExpertOptions()">Show expert options</a>
+          <a href="#" onclick="showExpertOptions(); return false">Show expert options</a>
         </div>
-        <div style="display: none;" id="expertOptions">
-          <div class="input-group col-xs-12">
+        <div style="display: none" id="expertOptions">
+          <div class="form-group input-group col-xs-12">
             <label for="sequence">Sequence</label>
             <select class="form-control" id="sequence" name="sequence"></select>
           </div>
-          <div class="input-group col-xs-12">
+          <div class="form-group input-group col-xs-12">
             <input type="radio" name="cship" id="citizen" value="0" checked="checked" />
             <label for="citizen">Citizen</label>
             <br/>
@@ -103,21 +108,21 @@
           </div>
         </div>
 
-        <input class="btn btn-primary" type="submit" />
-
       </form>
 
-      <h3>Result</h3>
+      <h3>Generated ID Number</h3>
 
-      <div id="result">Hint: submit the form to get an ID number.</div>
+      <div id="result"></div>
 
-        <h3>More Information</h3>
+      <hr>
+
+        <h4>More Information</h4>
 
         <p>See <a href="https://en.wikipedia.org/wiki/National_identification_number#South_Africa">Wikipedia</a> or
           <a href="http://knowles.co.za/generating-south-african-id-numbers/">this article</a>.
         </p>
         <p>
-          Read <a href="https://github.com/Chris927/generate-sa-idnumbers">the code</a>.
+          Read <a href="https://github.com/delta1/generate-sa-idnumbers">the code</a>.
         </p>
 
     </div>
