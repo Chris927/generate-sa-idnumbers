@@ -33,7 +33,9 @@
       const form = document.forms.f1
 
       const values = [
-        form.year, form.month, form.day,
+        { value: form.year.value.slice(-2) }, // last 2 digits of year
+        form.month, 
+        form.day,
         form.gender,
         { value: form.sequence.value || '896' /* sequence */ },
         { value: form.cship.value || '0' /* citizenship */ },
@@ -134,14 +136,14 @@
       .map(v => ((v < 10 ? '0' : '') + v))
       .map(v => {
         const value = toValue ? toValue(v) : v
-        const isDefault = defaultValue && defaultValue === value
+        const isDefault = defaultValue && defaultValue == value
         const label = toLabel ? toLabel(v) : v
         return `<option value=${ value } ${ isDefault ? 'selected="selected"' : '' }>${ label }</option>`
       })
       selectElement.innerHTML = options.join()
     }
 
-    const year = new Date().getYear() // need the current year to display age... 2016 yields 116 (thanks to funny JS)
+    const year = new Date().getFullYear() // need the current year to display age... 2016 yields 116 (thanks to funny JS)
 
     const pad = function(n) {
       const str = "" + n
@@ -149,10 +151,13 @@
       return pad.substring(0, pad.length - str.length) + str
     }
 
-    addOptions('year', 20, 99, v => `${v} (~${year - Number(v)} years old)`)
-    addOptions('month', 1, 12)
-    addOptions('day', 1, 31)
+    addOptions('year', year-100, year, v => `${v} (~${year - Number(v)} years old)`, null, year - 20 - Math.floor(Math.random() * 20))
+    addOptions('month', 1, 12, null, null, Math.ceil(Math.random() * 12))
+    addOptions('day', 1, 31, null, null, Math.ceil(Math.random() * 28))
     addOptions('sequence', 0, 999, v => pad(v), pad, '800')
+
+    // submit the form to show an ID number
+    showIdNumber();
 
   </script>
 
